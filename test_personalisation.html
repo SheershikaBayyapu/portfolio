@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Portfolio Personalisation Tester</title>
+<style>
+  :root {
+    --bg:      #0a0a0a;
+    --surface: #111;
+    --border:  #222;
+    --accent:  #ff4d00;
+    --text:    #f0ede8;
+    --muted:   #666;
+    --green:   #00c853;
+    --blue:    #2f7fff;
+    --red:     #e24b4a;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 13px; line-height: 1.6;
+    padding: 0; min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 24px;
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .header h1 {
+    font-size: 15px; font-weight: 600; letter-spacing: 0.06em;
+    text-transform: uppercase; color: var(--accent);
+  }
+  .header-status {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 11px; color: var(--muted);
+  }
+  .status-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--green); animation: blink 2s infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+  /* ── LAYOUT ── */
+  .layout {
+    display: grid;
+    grid-template-columns: 280px 1fr 300px;
+    gap: 0;
+    height: calc(100vh - 57px);
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    display: flex; flex-direction: column;
+  }
+  .sidebar-section {
+    padding: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .sidebar-title {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 12px;
+  }
+
+  /* ── MAIN CONTENT ── */
+  .main { overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+
+  /* ── RIGHT PANEL ── */
+  .right-panel {
+    background: var(--surface);
+    border-left: 1px solid var(--border);
+    overflow-y: auto;
+    display: flex; flex-direction: column;
+  }
+  .right-section {
+    padding: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .right-title {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 10px;
+  }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .card-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .card-title { font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+  .card-body { padding: 16px; }
+
+  /* ── BUTTONS ── */
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 7px 14px; border-radius: 4px; border: none;
+    font-size: 11px; font-weight: 600; letter-spacing: 0.1em;
+    text-transform: uppercase; cursor: pointer;
+    transition: all 0.2s; font-family: inherit;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn-accent  { background: var(--accent); color: #000; }
+  .btn-accent:hover { background: #ff6a2a; }
+  .btn-outline { background: transparent; color: var(--text); border: 1px solid var(--border); }
+  .btn-outline:hover { border-color: var(--text); }
+  .btn-green  { background: var(--green); color: #000; }
+  .btn-green:hover { background: #00e65e; }
+  .btn-red    { background: var(--red); color: #fff; }
+  .btn-red:hover { background: #ff5555; }
+  .btn-blue   { background: var(--blue); color: #fff; }
+  .btn-blue:hover { background: #4a8fff; }
+  .btn-sm { padding: 4px 10px; font-size: 10px; }
+  .btn-full { width: 100%; justify-content: center; margin-bottom: 6px; }
+
+  /* ── SCORE BARS ── */
+  .score-row {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 10px;
+  }
+  .score-label {
+    width: 70px; font-size: 11px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--muted); flex-shrink: 0;
+  }
+  .score-track {
+    flex: 1; height: 6px; background: var(--border);
+    border-radius: 3px; overflow: hidden;
+  }
+  .score-fill {
+    height: 100%; border-radius: 3px;
+    transition: width 0.6s cubic-bezier(0.16,1,0.3,1);
+    background: var(--accent);
+  }
+  .score-val {
+    width: 40px; text-align: right; font-size: 11px;
+    font-family: monospace; color: var(--text);
+  }
+
+  /* ── CLICK SIMULATORS ── */
+  .click-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+  .click-card {
+    border: 1px solid var(--border); border-radius: 4px;
+    padding: 10px; text-align: center;
+    transition: border-color 0.2s;
+    cursor: pointer; background: var(--bg);
+  }
+  .click-card:hover { border-color: var(--accent); }
+  .click-card-name { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; margin-bottom: 2px; }
+  .click-card-cat  { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+  .click-card-count { font-size: 18px; font-weight: 600; color: var(--accent); margin-top: 4px; }
+  .click-card.fintech  { border-color: #2f7fff33; }
+  .click-card.web3     { border-color: #ff4d0033; }
+  .click-card.branding { border-color: #a0c4ff33; }
+  .click-card.fintech:hover  { border-color: #2f7fff; }
+  .click-card.web3:hover     { border-color: #ff4d00; }
+  .click-card.branding:hover { border-color: #a0c4ff; }
+
+  /* ── LOG ── */
+  .log-container {
+    background: #060606; border: 1px solid var(--border);
+    border-radius: 4px; font-family: monospace;
+    font-size: 11px; height: 220px; overflow-y: auto;
+    padding: 10px;
+  }
+  .log-entry { margin-bottom: 3px; }
+  .log-ts    { color: var(--muted); }
+  .log-info  { color: var(--blue); }
+  .log-pass  { color: var(--green); }
+  .log-warn  { color: #f4bf4f; }
+  .log-action{ color: var(--accent); }
+
+  /* ── GRID PREVIEW ── */
+  .grid-preview { display: flex; flex-direction: column; gap: 4px; }
+  .grid-row {
+    display: flex; align-items: center; gap: 8px;
+    padding: 7px 10px; border-radius: 4px;
+    border: 1px solid var(--border); background: var(--bg);
+    transition: all 0.4s cubic-bezier(0.16,1,0.3,1);
+    font-size: 11px;
+  }
+  .grid-row.is-top {
+    border-color: var(--accent);
+    background: rgba(255,77,0,0.06);
+  }
+  .grid-pos { width: 18px; font-size: 10px; color: var(--muted); font-family: monospace; }
+  .grid-name { flex: 1; font-weight: 500; }
+  .grid-cat  {
+    font-size: 9px; font-weight: 700; letter-spacing: 0.1em;
+    padding: 2px 6px; border-radius: 3px;
+  }
+  .cat-fintech  { background: rgba(47,127,255,0.15); color: #2f7fff; }
+  .cat-web3     { background: rgba(255,77,0,0.15);   color: var(--accent); }
+  .cat-branding { background: rgba(160,196,255,0.1); color: #a0c4ff; }
+  .grid-score { font-family: monospace; font-size: 10px; color: var(--muted); }
+
+  /* ── TAGS ── */
+  .tag {
+    display: inline-block; font-size: 9px; font-weight: 600;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 2px 7px; border-radius: 10px;
+  }
+  .tag-accent  { background: rgba(255,77,0,0.15); color: var(--accent); }
+  .tag-green   { background: rgba(0,200,83,0.15);  color: var(--green); }
+  .tag-blue    { background: rgba(47,127,255,0.15); color: var(--blue); }
+  .tag-muted   { background: var(--border); color: var(--muted); }
+
+  /* ── STEP GUIDE ── */
+  .step { display: flex; gap: 12px; margin-bottom: 14px; }
+  .step-num {
+    width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0;
+    background: var(--accent); color: #000;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; margin-top: 1px;
+  }
+  .step-body { flex: 1; }
+  .step-title { font-size: 12px; font-weight: 600; margin-bottom: 2px; }
+  .step-desc  { font-size: 11px; color: var(--muted); line-height: 1.5; }
+
+  /* ── SCENARIO BUTTONS ── */
+  .scenario-btn {
+    width: 100%; text-align: left; padding: 10px 12px;
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 4px; color: var(--text);
+    cursor: pointer; margin-bottom: 6px;
+    font-family: inherit; transition: border-color 0.2s;
+  }
+  .scenario-btn:hover { border-color: var(--accent); }
+  .scenario-btn-name { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; color: var(--text); }
+  .scenario-btn-desc { font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+  /* ── THRESHOLD METER ── */
+  .threshold-display {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 4px; padding: 12px; margin-top: 8px;
+  }
+  .threshold-title { font-size: 10px; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px; }
+  .threshold-val { font-size: 28px; font-weight: 700; color: var(--accent); font-family: monospace; }
+  .threshold-label { font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+  /* ── PROGRESS ── */
+  .progress-bar {
+    height: 3px; background: var(--border); border-radius: 2px;
+    margin-top: 6px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; background: var(--accent);
+    transition: width 0.5s ease; border-radius: 2px;
+  }
+
+  /* ── INPUT ── */
+  select, input[type=range] {
+    background: var(--bg); border: 1px solid var(--border);
+    color: var(--text); border-radius: 4px; padding: 5px 8px;
+    font-family: inherit; font-size: 11px; width: 100%;
+  }
+  select:focus, input:focus { outline: none; border-color: var(--accent); }
+  input[type=range] { padding: 4px 0; cursor: pointer; accent-color: var(--accent); }
+  label { font-size: 10px; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; display: block; margin-bottom: 4px; }
+
+  .divider { border: none; border-top: 1px solid var(--border); margin: 10px 0; }
+  .flex-row { display: flex; align-items: center; gap: 6px; }
+  .mt8 { margin-top: 8px; }
+  .mb8 { margin-bottom: 8px; }
+  .mono { font-family: monospace; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <h1>◆ Portfolio Personalisation Tester</h1>
+  <div class="header-status">
+    <div class="status-dot"></div>
+    <span id="header-status">Ready — open your portfolio alongside this tester</span>
+  </div>
+</div>
+
+<div class="layout">
+
+  <!-- ════════════════════════════════
+       LEFT SIDEBAR — Controls
+       ════════════════════════════════ -->
+  <div class="sidebar">
+
+    <!-- QUICK ACTIONS -->
+    <div class="sidebar-section">
+      <div class="sidebar-title">Quick Actions</div>
+      <button class="btn btn-accent btn-full" onclick="injectData()">
+        ▶ INJECT SYNTHETIC DATA
+      </button>
+      <button class="btn btn-green btn-full" onclick="checkCurrentState()">
+        ↻ REFRESH SCORES
+      </button>
+      <button class="btn btn-outline btn-full" onclick="openPortfolio()">
+        ↗ OPEN PORTFOLIO
+      </button>
+      <button class="btn btn-red btn-full" onclick="clearAllData()">
+        ✕ RESET ALL DATA
+      </button>
+    </div>
+
+    <!-- SIMULATE A VISITOR TYPE -->
+    <div class="sidebar-section">
+      <div class="sidebar-title">Simulate Visitor</div>
+
+      <button class="scenario-btn" onclick="runScenario('recruiter')">
+        <div class="scenario-btn-name">👔 Recruiter</div>
+        <div class="scenario-btn-desc">Browses About → Contact → taps fintech links</div>
+      </button>
+      <button class="scenario-btn" onclick="runScenario('developer')">
+        <div class="scenario-btn-name">💻 Developer</div>
+        <div class="scenario-btn-desc">Heavy GitHub clicks → web3 projects</div>
+      </button>
+      <button class="scenario-btn" onclick="runScenario('client')">
+        <div class="scenario-btn-name">💼 Client</div>
+        <div class="scenario-btn-desc">Views live demos → branding projects</div>
+      </button>
+      <button class="scenario-btn" onclick="runScenario('web3fan')">
+        <div class="scenario-btn-name">🔗 Web3 Fan</div>
+        <div class="scenario-btn-desc">Obsessed with Web3 — clicks everything Web3</div>
+      </button>
+      <button class="scenario-btn" onclick="runScenario('random')">
+        <div class="scenario-btn-name">🎲 Random User</div>
+        <div class="scenario-btn-desc">Mixed clicks across all categories</div>
+      </button>
+    </div>
+
+    <!-- BATCH SIMULATION -->
+    <div class="sidebar-section">
+      <div class="sidebar-title">Batch Simulation</div>
+      <label>Number of Users</label>
+      <input type="range" id="batch-count" min="1" max="50" value="10"
+             oninput="document.getElementById('batch-val').textContent=this.value">
+      <div class="flex-row mt8">
+        <span class="mono" style="font-size:14px;color:var(--accent)" id="batch-val">10</span>
+        <span style="color:var(--muted);font-size:11px">simulated users</span>
+      </div>
+      <button class="btn btn-blue btn-full mt8" onclick="runBatch()">
+        ⚡ RUN BATCH
+      </button>
+    </div>
+
+    <!-- MANUAL CLICK -->
+    <div class="sidebar-section">
+      <div class="sidebar-title">Manual Click Injection</div>
+      <label>Project</label>
+      <select id="manual-project" class="mb8">
+        <option value="p1|fintech">p1 — ClearLedger (Fintech)</option>
+        <option value="p2|web3">p2 — VaultDAO (Web3)</option>
+        <option value="p3|branding">p3 — NordPay (Branding)</option>
+        <option value="p4|web3">p4 — MintFolio (Web3)</option>
+        <option value="p5|fintech">p5 — Arbor Wealth (Fintech)</option>
+        <option value="p6|branding">p6 — Apex Protocol (Branding)</option>
+      </select>
+      <label>Click Type</label>
+      <select id="manual-type" class="mb8">
+        <option value="live">Live Link (+5 pts)</option>
+        <option value="github">GitHub Link (+3 pts)</option>
+      </select>
+      <label>Count</label>
+      <input type="range" id="manual-count" min="1" max="20" value="1"
+             oninput="document.getElementById('manual-val').textContent=this.value">
+      <div class="flex-row mt8 mb8">
+        <span class="mono" style="font-size:14px;color:var(--accent)" id="manual-val">1</span>
+        <span style="color:var(--muted);font-size:11px">clicks</span>
+      </div>
+      <button class="btn btn-accent btn-full" onclick="injectManualClicks()">
+        + INJECT CLICKS
+      </button>
+    </div>
+
+  </div>
+
+  <!-- ════════════════════════════════
+       MAIN — Dashboard
+       ════════════════════════════════ -->
+  <div class="main">
+
+    <!-- HOW IT WORKS -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">How Personalisation Works</span>
+        <span class="tag tag-blue">SCORING FORMULA</span>
+      </div>
+      <div class="card-body">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div>
+            <div class="step">
+              <div class="step-num">1</div>
+              <div class="step-body">
+                <div class="step-title">Track clicks + dwell</div>
+                <div class="step-desc">Every live link click = +5pts, GitHub = +3pts, nav = +1pt, dwell = +0.5pts/sec. Stored in localStorage anonymously.</div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">2</div>
+              <div class="step-body">
+                <div class="step-title">Calculate category scores</div>
+                <div class="step-desc">All points are summed per category (Fintech / Web3 / Branding). The category with the highest total score wins.</div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">3</div>
+              <div class="step-body">
+                <div class="step-title">Reorder the project grid</div>
+                <div class="step-desc">Winning category cards float to the top. First card gets an orange border pulse animation. Happens instantly on next page load.</div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <!-- Score Formula -->
+            <div style="background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:12px;font-family:monospace;font-size:11px;line-height:1.9">
+              <div style="color:var(--muted);margin-bottom:6px">// Scoring formula (from app.js)</div>
+              <div style="color:var(--accent)">score<span style="color:var(--text)">[cat]</span> =</div>
+              <div style="padding-left:16px">
+                <div><span style="color:var(--green)">liveClicks</span> × <span style="color:#f4bf4f">5</span></div>
+                <div>+ <span style="color:var(--green)">githubClicks</span> × <span style="color:#f4bf4f">3</span></div>
+                <div>+ <span style="color:var(--green)">navClicks</span> × <span style="color:#f4bf4f">1</span></div>
+                <div>+ <span style="color:var(--green)">dwellSeconds</span> × <span style="color:#f4bf4f">0.5</span></div>
+              </div>
+              <div class="divider"></div>
+              <div style="color:var(--muted)">// Threshold to trigger reorder:</div>
+              <div><span style="color:var(--accent)">topCat</span> = category with max score</div>
+              <div><span style="color:var(--muted)">// min score needed: </span><span style="color:#f4bf4f" id="threshold-val">any > 0</span></div>
+            </div>
+            <!-- Minimum clicks needed -->
+            <div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+              <div style="background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:8px;text-align:center">
+                <div style="font-size:20px;font-weight:700;color:var(--accent)">1</div>
+                <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em">live click<br/>to activate</div>
+              </div>
+              <div style="background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:8px;text-align:center">
+                <div style="font-size:20px;font-weight:700;color:var(--blue)">2</div>
+                <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em">github clicks<br/>to activate</div>
+              </div>
+              <div style="background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:8px;text-align:center">
+                <div style="font-size:20px;font-weight:700;color:var(--green)">5</div>
+                <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em">nav clicks<br/>to activate</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LIVE SCORES -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Live Engagement Scores</span>
+        <div class="flex-row">
+          <span id="winner-badge" class="tag tag-muted">No winner yet</span>
+          <button class="btn btn-outline btn-sm" onclick="checkCurrentState()">↻ Refresh</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div id="score-fintech" class="score-row">
+          <div class="score-label" style="color:#2f7fff">FINTECH</div>
+          <div class="score-track"><div class="score-fill" id="bar-fintech" style="width:0%;background:#2f7fff"></div></div>
+          <div class="score-val" id="val-fintech">0</div>
+        </div>
+        <div id="score-web3" class="score-row">
+          <div class="score-label" style="color:var(--accent)">WEB3</div>
+          <div class="score-track"><div class="score-fill" id="bar-web3" style="width:0%"></div></div>
+          <div class="score-val" id="val-web3">0</div>
+        </div>
+        <div id="score-branding" class="score-row">
+          <div class="score-label" style="color:#a0c4ff">BRANDING</div>
+          <div class="score-track"><div class="score-fill" id="bar-branding" style="width:0%;background:#a0c4ff"></div></div>
+          <div class="score-val" id="val-branding">0</div>
+        </div>
+        <div class="divider"></div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:2px">
+          <div>
+            <div style="font-size:10px;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:2px">Live Clicks</div>
+            <div class="flex-row">
+              <span id="stat-live-fintech" style="color:#2f7fff;font-family:monospace">0</span>
+              <span style="color:var(--muted);font-size:10px">fin</span>
+              <span id="stat-live-web3" style="color:var(--accent);font-family:monospace">0</span>
+              <span style="color:var(--muted);font-size:10px">w3</span>
+              <span id="stat-live-branding" style="color:#a0c4ff;font-family:monospace">0</span>
+              <span style="color:var(--muted);font-size:10px">br</span>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:10px;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:2px">GitHub Clicks</div>
+            <div class="flex-row">
+              <span id="stat-gh-fintech" style="color:#2f7fff;font-family:monospace">0</span>
+              <span style="color:var(--muted);font-size:10px">fin</span>
+              <span id="stat-gh-web3" style="color:var(--accent);font-family:monospace">0</span>
+              <span style="color:var(--muted);font-size:10px">w3</span>
+              <span id="stat-gh-branding" style="color:#a0c4ff;font-family:monospace">0</span>
+              <span style="color:var(--muted);font-size:10px">br</span>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:10px;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:2px">Total Clicks</div>
+            <div id="stat-total-clicks" style="font-family:monospace;font-size:16px;font-weight:600;color:var(--text)">0</div>
+          </div>
+          <div>
+            <div style="font-size:10px;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:2px">Winner</div>
+            <div id="stat-winner" style="font-family:monospace;font-size:12px;font-weight:600;color:var(--accent);text-transform:uppercase">—</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROJECT GRID PREVIEW -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Project Grid Order Preview</span>
+        <span style="font-size:10px;color:var(--muted)">Updates after each injection</span>
+      </div>
+      <div class="card-body">
+        <div class="grid-preview" id="grid-preview">
+          <!-- filled by JS -->
+        </div>
+        <div class="progress-bar mt8">
+          <div class="progress-fill" id="inject-progress" style="width:0%"></div>
+        </div>
+        <div style="font-size:10px;color:var(--muted);margin-top:4px" id="progress-label"></div>
+      </div>
+    </div>
+
+    <!-- CLICK SIMULATOR CARDS -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Click Per Project (Live)</span>
+        <span style="font-size:10px;color:var(--muted)">Click a card to add 1 live-link click</span>
+      </div>
+      <div class="card-body">
+        <div class="click-grid" id="click-grid">
+          <!-- filled by JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- ACTIVITY LOG -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Activity Log</span>
+        <button class="btn btn-outline btn-sm" onclick="clearLog()">Clear</button>
+      </div>
+      <div class="card-body">
+        <div class="log-container" id="activity-log">
+          <div class="log-entry"><span class="log-info">[READY]</span> Tester initialised. Click "Inject Synthetic Data" to begin.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ════════════════════════════════
+       RIGHT PANEL — State inspector
+       ════════════════════════════════ -->
+  <div class="right-panel">
+
+    <!-- CURRENT localStorage STATE -->
+    <div class="right-section">
+      <div class="right-title">localStorage State</div>
+      <div id="ls-state" style="font-family:monospace;font-size:10px;color:var(--muted);background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:8px;max-height:180px;overflow-y:auto;line-height:1.7">
+        Click "Refresh Scores" to load...
+      </div>
+    </div>
+
+    <!-- HOW TO TEST ON REAL PORTFOLIO -->
+    <div class="right-section">
+      <div class="right-title">Test on Real Portfolio</div>
+      <div class="step" style="margin-bottom:10px">
+        <div class="step-num" style="font-size:10px">A</div>
+        <div class="step-body">
+          <div class="step-title">Open portfolio in same browser</div>
+          <div class="step-desc">Both tabs share the same localStorage — data injected here is read by your portfolio instantly.</div>
+        </div>
+      </div>
+      <div class="step" style="margin-bottom:10px">
+        <div class="step-num" style="font-size:10px">B</div>
+        <div class="step-body">
+          <div class="step-title">Inject data → reload portfolio</div>
+          <div class="step-desc">After injecting, switch to your portfolio tab and press F5. The personalisation engine runs on load and reorders the grid.</div>
+        </div>
+      </div>
+      <div class="step" style="margin-bottom:10px">
+        <div class="step-num" style="font-size:10px">C</div>
+        <div class="step-body">
+          <div class="step-title">Watch the top card change</div>
+          <div class="step-desc">The winning category's cards move to positions 1–2 in the grid. First card gets an orange border animation.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num" style="font-size:10px">D</div>
+        <div class="step-body">
+          <div class="step-title">Console shortcut</div>
+          <div class="step-desc">In your portfolio's DevTools console, run:<br/>
+          <code style="color:var(--accent)">__portfolioDebug.getScores()</code><br/>
+          to see live category scores.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WINNER THRESHOLD -->
+    <div class="right-section">
+      <div class="right-title">Score Needed to Win</div>
+      <div class="threshold-display">
+        <div class="threshold-title">Minimum clicks to trigger reorder</div>
+        <div class="threshold-val" id="threshold-big">1</div>
+        <div class="threshold-label">live link click = 5pts (enough to win from 0)</div>
+      </div>
+      <div style="margin-top:10px;font-size:11px;color:var(--muted);line-height:1.6">
+        The grid reorders as soon as ANY category has a score greater than 0 AND it's higher than others. One live click on a Web3 project is enough to make Web3 cards appear first — permanently until data is cleared or another category overtakes it.
+      </div>
+    </div>
+
+    <!-- WHAT TO OBSERVE -->
+    <div class="right-section">
+      <div class="right-title">What to Watch For</div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div style="padding:8px;background:var(--bg);border:1px solid var(--border);border-radius:4px;font-size:11px">
+          <div style="color:var(--accent);font-weight:600;margin-bottom:2px">Orange border pulse</div>
+          <div style="color:var(--muted)">First card of the winning category gets a 3× pulsing orange border on page load</div>
+        </div>
+        <div style="padding:8px;background:var(--bg);border:1px solid var(--border);border-radius:4px;font-size:11px">
+          <div style="color:var(--blue);font-weight:600;margin-bottom:2px">Grid reorder</div>
+          <div style="color:var(--muted)">Winning category's 2 cards always appear in positions 1 and 2</div>
+        </div>
+        <div style="padding:8px;background:var(--bg);border:1px solid var(--border);border-radius:4px;font-size:11px">
+          <div style="color:var(--green);font-weight:600;margin-bottom:2px">Subtitle text changes</div>
+          <div style="color:var(--muted)">"Selected projects" subtitle shows the detected category name</div>
+        </div>
+        <div style="padding:8px;background:var(--bg);border:1px solid var(--border);border-radius:4px;font-size:11px">
+          <div style="color:#a0c4ff;font-weight:600;margin-bottom:2px">Persists across sessions</div>
+          <div style="color:var(--muted)">Close and reopen the portfolio — it remembers and applies the same reorder instantly</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+'use strict';
+
+/* ════════════════════════════════════════════════════════════
+   CONFIG — mirrors your app.js exactly
+   ════════════════════════════════════════════════════════════ */
+const STORAGE_KEY = 'portfolio_analytics_v1';
+
+const PROJECTS = [
+  { id:'p1', name:'ClearLedger',    cat:'fintech'  },
+  { id:'p2', name:'VaultDAO',       cat:'web3'     },
+  { id:'p3', name:'NordPay',        cat:'branding' },
+  { id:'p4', name:'MintFolio',      cat:'web3'     },
+  { id:'p5', name:'Arbor Wealth',   cat:'fintech'  },
+  { id:'p6', name:'Apex Protocol',  cat:'branding' },
+];
+
+const WEIGHTS = { liveClick:5, githubClick:3, navClick:1, dwell:0.5 };
+
+/* ════════════════════════════════════════════════════════════
+   HELPERS
+   ════════════════════════════════════════════════════════════ */
+function ts() {
+  const now = new Date();
+  return `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
+}
+
+function addLog(msg, type='info') {
+  const log = document.getElementById('activity-log');
+  const entry = document.createElement('div');
+  entry.className = 'log-entry';
+  const classMap = { info:'log-info', pass:'log-pass', warn:'log-warn', action:'log-action' };
+  entry.innerHTML = `<span class="log-ts">[${ts()}]</span> <span class="${classMap[type]||'log-info'}">${msg}</span>`;
+  log.appendChild(entry);
+  log.scrollTop = log.scrollHeight;
+}
+
+function clearLog() {
+  document.getElementById('activity-log').innerHTML = '';
+  addLog('Log cleared', 'info');
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : createFreshState();
+  } catch(e) { return createFreshState(); }
+}
+
+function createFreshState() {
+  return {
+    sessionId: 'anon_test_' + Math.random().toString(36).slice(2,9),
+    sections: {},
+    clicks: { liveLinks:{}, githubLinks:{}, social:{}, nav:{} },
+    categories: {},
+    lastUpdated: new Date().toISOString(),
+  };
+}
+
+function saveState(state) {
+  state.lastUpdated = new Date().toISOString();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+/* ════════════════════════════════════════════════════════════
+   SCORE CALCULATION — mirrors app.js computeEngagementScores
+   ════════════════════════════════════════════════════════════ */
+function computeScores(state) {
+  const scores = { fintech:0, web3:0, branding:0 };
+  const pMap   = {};
+  PROJECTS.forEach(p => { pMap[p.id] = p.cat; });
+
+  Object.entries(state.clicks.liveLinks || {}).forEach(([pid, n]) => {
+    const cat = pMap[pid]; if(cat) scores[cat] += n * WEIGHTS.liveClick;
+  });
+  Object.entries(state.clicks.githubLinks || {}).forEach(([pid, n]) => {
+    const cat = pMap[pid]; if(cat) scores[cat] += n * WEIGHTS.githubClick;
+  });
+  Object.entries(state.categories || {}).forEach(([cat, v]) => {
+    if(scores[cat] !== undefined) scores[cat] += v;
+  });
+  return scores;
+}
+
+function getTopCategory(scores) {
+  let top = null, topScore = 0;
+  Object.entries(scores).forEach(([cat, score]) => {
+    if(score > topScore) { topScore = score; top = cat; }
+  });
+  return { cat: top, score: topScore };
+}
+
+/* ════════════════════════════════════════════════════════════
+   UI UPDATE
+   ════════════════════════════════════════════════════════════ */
+function updateUI() {
+  const state  = loadState();
+  const scores = computeScores(state);
+  const winner = getTopCategory(scores);
+  const maxScore = Math.max(...Object.values(scores), 1);
+
+  // Score bars
+  ['fintech','web3','branding'].forEach(cat => {
+    const pct = (scores[cat] / maxScore * 100).toFixed(1);
+    document.getElementById(`bar-${cat}`).style.width = pct + '%';
+    document.getElementById(`val-${cat}`).textContent = scores[cat].toFixed(1);
+  });
+
+  // Winner badge
+  const badge = document.getElementById('winner-badge');
+  const statW = document.getElementById('stat-winner');
+  if (winner.cat && winner.score > 0) {
+    badge.className = `tag tag-accent`;
+    badge.textContent = `★ ${winner.cat.toUpperCase()} WINS`;
+    statW.textContent = winner.cat.toUpperCase();
+    statW.style.color = winner.cat === 'web3' ? 'var(--accent)' :
+                        winner.cat === 'fintech' ? 'var(--blue)' : '#a0c4ff';
+  } else {
+    badge.className = 'tag tag-muted';
+    badge.textContent = 'No winner yet';
+    statW.textContent = '—';
+  }
+
+  // Stats
+  const liveLinks = state.clicks.liveLinks || {};
+  const ghLinks   = state.clicks.githubLinks || {};
+  const pMap = {}; PROJECTS.forEach(p => { pMap[p.id] = p.cat; });
+
+  const liveCats = {fintech:0, web3:0, branding:0};
+  const ghCats   = {fintech:0, web3:0, branding:0};
+  let total = 0;
+  Object.entries(liveLinks).forEach(([pid,n]) => { const c=pMap[pid]; if(c){liveCats[c]+=n; total+=n;} });
+  Object.entries(ghLinks).forEach(([pid,n]) => { const c=pMap[pid]; if(c){ghCats[c]+=n; total+=n;} });
+
+  document.getElementById('stat-live-fintech').textContent  = liveCats.fintech;
+  document.getElementById('stat-live-web3').textContent     = liveCats.web3;
+  document.getElementById('stat-live-branding').textContent = liveCats.branding;
+  document.getElementById('stat-gh-fintech').textContent    = ghCats.fintech;
+  document.getElementById('stat-gh-web3').textContent       = ghCats.web3;
+  document.getElementById('stat-gh-branding').textContent   = ghCats.branding;
+  document.getElementById('stat-total-clicks').textContent  = total;
+
+  // localStorage inspector
+  document.getElementById('ls-state').innerHTML = syntaxHighlight(JSON.stringify(state, null, 2));
+
+  // Grid preview
+  updateGridPreview(scores, winner.cat);
+
+  // Click cards
+  updateClickCards(state);
+}
+
+function syntaxHighlight(json) {
+  return json
+    .replace(/(".*?")/g, '<span style="color:#a0c4ff">$1</span>')
+    .replace(/\b(\d+\.?\d*)\b/g, '<span style="color:#f4bf4f">$1</span>')
+    .replace(/\b(true|false|null)\b/g, '<span style="color:var(--accent)">$1</span>');
+}
+
+function updateGridPreview(scores, topCat) {
+  // Sort projects by category score
+  const sorted = [...PROJECTS].sort((a, b) => {
+    if (a.cat === topCat && b.cat !== topCat) return -1;
+    if (b.cat === topCat && a.cat !== topCat) return 1;
+    return (scores[b.cat]||0) - (scores[a.cat]||0);
+  });
+
+  const container = document.getElementById('grid-preview');
+  container.innerHTML = sorted.map((p, i) => {
+    const isTop = p.cat === topCat;
+    const score = scores[p.cat] || 0;
+    const catClass = `cat-${p.cat}`;
+    return `
+      <div class="grid-row ${i < 2 && isTop ? 'is-top' : ''}">
+        <span class="grid-pos">${i+1}</span>
+        <span class="grid-name">${p.name}</span>
+        <span class="grid-cat ${catClass}">${p.cat}</span>
+        <span class="grid-score">${score.toFixed(0)}pt${i<2&&isTop ? ' ★':''}</span>
+      </div>`;
+  }).join('');
+}
+
+function updateClickCards(state) {
+  const ll = state.clicks.liveLinks || {};
+  const gh = state.clicks.githubLinks || {};
+  const container = document.getElementById('click-grid');
+  container.innerHTML = PROJECTS.map(p => {
+    const lc = ll[p.id] || 0;
+    const gc = gh[p.id] || 0;
+    const total = lc * 5 + gc * 3;
+    return `
+      <div class="click-card ${p.cat}" onclick="quickClick('${p.id}','${p.cat}')" title="Click to add 1 live-link click">
+        <div class="click-card-name">${p.name}</div>
+        <div class="click-card-cat">${p.cat}</div>
+        <div class="click-card-count">${total}</div>
+        <div style="font-size:9px;color:var(--muted);margin-top:2px">L:${lc} G:${gc}</div>
+      </div>`;
+  }).join('');
+}
+
+/* ════════════════════════════════════════════════════════════
+   ACTIONS
+   ════════════════════════════════════════════════════════════ */
+function quickClick(pid, cat) {
+  const state = loadState();
+  state.clicks.liveLinks[pid] = (state.clicks.liveLinks[pid] || 0) + 1;
+  state.categories[cat]       = (state.categories[cat] || 0) + WEIGHTS.liveClick;
+  saveState(state);
+  addLog(`+1 live click on ${pid} (${cat}) → +5pts`, 'action');
+  updateUI();
+}
+
+function checkCurrentState() {
+  updateUI();
+  const state  = loadState();
+  const scores = computeScores(state);
+  const winner = getTopCategory(scores);
+  addLog(`Scores — Fintech:${scores.fintech.toFixed(1)} Web3:${scores.web3.toFixed(1)} Branding:${scores.branding.toFixed(1)}`, 'pass');
+  if (winner.cat) {
+    addLog(`🏆 Winner: ${winner.cat.toUpperCase()} with ${winner.score.toFixed(1)} pts → grid will show ${winner.cat} cards first`, 'pass');
+  }
+}
+
+function openPortfolio() {
+  addLog('Opening portfolio in new tab... reload it after injecting data', 'info');
+  window.open('index.html', '_blank');
+}
+
+function clearAllData() {
+  localStorage.removeItem(STORAGE_KEY);
+  addLog('All analytics data cleared from localStorage', 'warn');
+  addLog('Reload your portfolio tab to see the reset (default order)', 'warn');
+  updateUI();
+}
+
+/* ════════════════════════════════════════════════════════════
+   SYNTHETIC DATA INJECTION — full batch
+   ════════════════════════════════════════════════════════════ */
+function injectData() {
+  const state = loadState();
+  addLog('Injecting balanced synthetic dataset (11 simulated users)...', 'info');
+
+  // Simulate realistic click distributions across user types
+  const injections = [
+    // Recruiters — fintech heavy
+    { pid:'p1', type:'live',   n:3, label:'Recruiter 1 → ClearLedger live' },
+    { pid:'p5', type:'live',   n:2, label:'Recruiter 2 → Arbor Wealth live' },
+    { pid:'p1', type:'github', n:2, label:'Recruiter 3 → ClearLedger github' },
+    // Developers — web3 + github
+    { pid:'p2', type:'github', n:4, label:'Dev 1 → VaultDAO github' },
+    { pid:'p4', type:'github', n:3, label:'Dev 2 → MintFolio github' },
+    { pid:'p2', type:'live',   n:2, label:'Dev 3 → VaultDAO live' },
+    // Clients — live demos
+    { pid:'p3', type:'live',   n:2, label:'Client 1 → NordPay live' },
+    { pid:'p6', type:'live',   n:1, label:'Client 2 → Apex live' },
+    // Mixed
+    { pid:'p4', type:'live',   n:1, label:'Web3 fan → MintFolio live' },
+    { pid:'p1', type:'live',   n:1, label:'Random → ClearLedger live' },
+    { pid:'p2', type:'live',   n:1, label:'Random → VaultDAO live' },
+  ];
+
+  injections.forEach(inj => {
+    const key = inj.type === 'live' ? 'liveLinks' : 'githubLinks';
+    const pts = inj.type === 'live' ? WEIGHTS.liveClick : WEIGHTS.githubClick;
+    const cat = PROJECTS.find(p => p.id === inj.pid)?.cat;
+    state.clicks[key][inj.pid] = (state.clicks[key][inj.pid] || 0) + inj.n;
+    if (cat) state.categories[cat] = (state.categories[cat] || 0) + (pts * inj.n);
+    addLog(`${inj.label} ×${inj.n}`, 'action');
+  });
+
+  // Add section dwell time
+  ['home','about','skills','projects','contact'].forEach(s => {
+    state.sections[s] = { dwell: 10 + Math.random()*20, visits: 3 };
+  });
+
+  saveState(state);
+  addLog('✓ Synthetic data injected successfully', 'pass');
+
+  const scores = computeScores(state);
+  const winner = getTopCategory(scores);
+  addLog(`Scores → Fintech:${scores.fintech} Web3:${scores.web3} Branding:${scores.branding}`, 'pass');
+  addLog(`🏆 Winner: ${winner.cat?.toUpperCase() || 'none'} — NOW RELOAD YOUR PORTFOLIO TAB (F5)`, 'pass');
+
+  updateUI();
+}
+
+/* ════════════════════════════════════════════════════════════
+   SCENARIO SIMULATION
+   ════════════════════════════════════════════════════════════ */
+const SCENARIOS = {
+  recruiter: {
+    label: 'Recruiter',
+    clicks: [
+      {pid:'p1',type:'live',n:3},{pid:'p5',type:'live',n:2},
+      {pid:'p1',type:'github',n:1}
+    ]
+  },
+  developer: {
+    label: 'Developer',
+    clicks: [
+      {pid:'p2',type:'github',n:5},{pid:'p4',type:'github',n:4},
+      {pid:'p2',type:'live',n:2}
+    ]
+  },
+  client: {
+    label: 'Client',
+    clicks: [
+      {pid:'p3',type:'live',n:4},{pid:'p6',type:'live',n:3},
+      {pid:'p3',type:'github',n:1}
+    ]
+  },
+  web3fan: {
+    label: 'Web3 Fan',
+    clicks: [
+      {pid:'p2',type:'live',n:5},{pid:'p4',type:'live',n:5},
+      {pid:'p2',type:'github',n:3},{pid:'p4',type:'github',n:3}
+    ]
+  },
+  random: {
+    label: 'Random User',
+    clicks: PROJECTS.map(p => ({
+      pid: p.id,
+      type: Math.random() > 0.5 ? 'live' : 'github',
+      n: Math.floor(Math.random() * 3) + 1
+    }))
+  }
+};
+
+function runScenario(name) {
+  const scenario = SCENARIOS[name];
+  if (!scenario) return;
+  const state = loadState();
+  addLog(`Simulating ${scenario.label} visitor...`, 'info');
+
+  scenario.clicks.forEach(inj => {
+    const key = inj.type === 'live' ? 'liveLinks' : 'githubLinks';
+    const pts = inj.type === 'live' ? WEIGHTS.liveClick : WEIGHTS.githubClick;
+    const cat = PROJECTS.find(p => p.id === inj.pid)?.cat;
+    state.clicks[key][inj.pid] = (state.clicks[key][inj.pid] || 0) + inj.n;
+    if (cat) state.categories[cat] = (state.categories[cat] || 0) + (pts * inj.n);
+    addLog(`  ${scenario.label} → ${inj.type} click on ${inj.pid} ×${inj.n} (+${pts*inj.n}pts)`, 'action');
+  });
+
+  saveState(state);
+  const scores = computeScores(state);
+  const winner = getTopCategory(scores);
+  addLog(`✓ ${scenario.label} done → Winner now: ${winner.cat?.toUpperCase() || 'tie'} (${winner.score.toFixed(0)}pts)`, 'pass');
+  addLog(`→ Reload portfolio tab (F5) to see the reorder`, 'warn');
+  updateUI();
+}
+
+/* ════════════════════════════════════════════════════════════
+   BATCH SIMULATION
+   ════════════════════════════════════════════════════════════ */
+async function runBatch() {
+  const count = parseInt(document.getElementById('batch-count').value);
+  const progress = document.getElementById('inject-progress');
+  const label    = document.getElementById('progress-label');
+  const state    = loadState();
+  addLog(`Running batch of ${count} simulated users...`, 'info');
+
+  const names = Object.keys(SCENARIOS);
+
+  for (let i = 0; i < count; i++) {
+    const scenarioName = names[Math.floor(Math.random() * names.length)];
+    const scenario     = SCENARIOS[scenarioName];
+    scenario.clicks.forEach(inj => {
+      const key = inj.type === 'live' ? 'liveLinks' : 'githubLinks';
+      const pts = inj.type === 'live' ? WEIGHTS.liveClick : WEIGHTS.githubClick;
+      const cat = PROJECTS.find(p => p.id === inj.pid)?.cat;
+      // Add some randomness to click counts
+      const n = Math.max(1, inj.n + Math.floor(Math.random()*3) - 1);
+      state.clicks[key][inj.pid] = (state.clicks[key][inj.pid] || 0) + n;
+      if (cat) state.categories[cat] = (state.categories[cat] || 0) + (pts * n);
+    });
+
+    const pct = Math.round(((i+1)/count)*100);
+    progress.style.width = pct + '%';
+    label.textContent = `Processing user ${i+1}/${count} (${scenarioName})...`;
+
+    if (i % 5 === 0) {
+      saveState(state);
+      updateUI();
+      await new Promise(r => setTimeout(r, 30));
+    }
+  }
+
+  saveState(state);
+  const scores = computeScores(state);
+  const winner = getTopCategory(scores);
+  label.textContent = `Done! ${count} users simulated.`;
+  addLog(`✓ Batch complete — ${count} users simulated`, 'pass');
+  addLog(`Final winner: ${winner.cat?.toUpperCase()||'tie'} (${winner.score.toFixed(0)}pts) → Reload portfolio`, 'pass');
+  updateUI();
+}
+
+/* ════════════════════════════════════════════════════════════
+   MANUAL CLICK INJECTION
+   ════════════════════════════════════════════════════════════ */
+function injectManualClicks() {
+  const sel   = document.getElementById('manual-project').value.split('|');
+  const pid   = sel[0];
+  const cat   = sel[1];
+  const type  = document.getElementById('manual-type').value;
+  const count = parseInt(document.getElementById('manual-count').value);
+  const state = loadState();
+
+  const key = type === 'live' ? 'liveLinks' : 'githubLinks';
+  const pts = type === 'live' ? WEIGHTS.liveClick : WEIGHTS.githubClick;
+  state.clicks[key][pid] = (state.clicks[key][pid] || 0) + count;
+  state.categories[cat]  = (state.categories[cat]  || 0) + (pts * count);
+
+  saveState(state);
+  const score = scores => scores[cat];
+  const allScores = computeScores(state);
+  addLog(`+${count} ${type} click(s) on ${pid} (${cat}) → +${pts*count}pts → ${cat} total: ${allScores[cat].toFixed(1)}`, 'action');
+
+  const winner = getTopCategory(allScores);
+  if (winner.cat === cat) {
+    addLog(`🏆 ${cat.toUpperCase()} is now winning! Reload your portfolio to see the effect`, 'pass');
+  }
+  updateUI();
+}
+
+/* ════════════════════════════════════════════════════════════
+   INIT
+   ════════════════════════════════════════════════════════════ */
+updateUI();
+setInterval(updateUI, 3000);
+addLog('Tester ready — localStorage key: portfolio_analytics_v1', 'info');
+addLog('This page shares localStorage with your portfolio (same browser/tab)', 'info');
+</script>
+</body>
+</html>
