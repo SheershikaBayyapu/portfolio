@@ -628,19 +628,45 @@ function initContactForm() {
       message: sanitiseHTML(stripTags(form.querySelector('#f-message').value.trim())),
     };
 
-    // ── Simulate async submission (replace with real fetch call) ──
+    // ── Submit to Netlify Forms via fetch (AJAX — no page reload) ──
     const submitBtn = document.getElementById('form-submit');
     if (submitBtn) {
-      submitBtn.disabled  = true;
+      submitBtn.disabled    = true;
       submitBtn.textContent = 'SENDING…';
     }
 
-    // Simulated network delay — replace with:
-    // fetch('/api/contact', { method: 'POST', body: JSON.stringify(payload) })
-    setTimeout(() => {
-      console.info('[Portfolio] Form submission payload (sanitised):', payload);
-      showFormSuccess(form);
-    }, 1200);
+    // Netlify Forms requires application/x-www-form-urlencoded
+    // and the hidden `form-name` field so it knows which form to store
+    const formData = new URLSearchParams({
+      'form-name': 'contact',
+      name:    payload.name,
+      email:   payload.email,
+      subject: payload.subject,
+      message: payload.message,
+    });
+
+    fetch('/', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body:    formData.toString(),
+    })
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        showFormSuccess(form);
+      })
+      .catch(err => {
+        // Re-enable the button and show a user-friendly error
+        console.error('[Portfolio] Form submission failed:', err);
+        if (submitBtn) {
+          submitBtn.disabled    = false;
+          submitBtn.textContent = 'SEND MESSAGE →';
+        }
+        const errorSummary = document.getElementById('form-errors');
+        if (errorSummary) {
+          errorSummary.textContent = '✗ Submission failed — please try again or email directly.';
+          errorSummary.hidden = false;
+        }
+      });
   });
 }
 
